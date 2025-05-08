@@ -1,4 +1,4 @@
-# Vite config for modern web projects + three.js
+# Three.js outline post processing effect based on [Omar Shehatas Solution](https://omar-shehata.medium.com/better-outline-rendering-using-surface-ids-with-webgl-e13cdab1fd94)
 
 ## Setup
 
