@@ -1,4 +1,4 @@
-import * as THREE from "three"
+import * as THREE from "three/webgpu"
 import { canvas, sizes } from "./Experience"
 
 export class Renderer {
@@ -9,11 +9,12 @@ export class Renderer {
   }
 
   setRenderer() {
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new THREE.WebGPURenderer({
       canvas: canvas,
       antialias: true,
     })
     this.renderer.setSize(sizes.width, sizes.height)
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace
   }
 }

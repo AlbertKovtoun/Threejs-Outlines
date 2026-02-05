@@ -1,22 +1,20 @@
-import * as THREE from "three"
+import * as THREE from "three/webgpu"
+import { uv, vec4 } from "three/tsl"
 import { loaders, scene } from "./Experience"
 
 export class Model {
   constructor() {
-    this.setModel()
-  }
+    loaders.gltfLoader.load("/models/Scene.glb", (gltf) => {
+      this.modelGroup = gltf.scene
 
-  setModel() {
-    loaders.gltfLoader.load("/models/scene.glb", (gltf) => {
-      this.model = gltf.scene
-
-      this.model.traverse((mesh) => {
-        if (mesh.isObject3D) {
-          mesh.material = new THREE.MeshNormalMaterial()
+      this.modelGroup.traverse((child) => {
+        if (child.isMesh) {
+          child.material = new THREE.MeshBasicNodeMaterial()
+          child.material.colorNode = vec4(uv(), 1, 1)
         }
       })
 
-      scene.add(this.model)
+      scene.add(this.modelGroup)
     })
   }
 }

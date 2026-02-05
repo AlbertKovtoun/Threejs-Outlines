@@ -1,53 +1,25 @@
-import * as THREE from "three"
+import * as THREE from "three/webgpu"
 
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer"
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass"
-import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass"
-import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader"
+import { pass, mrt, output, emissive, uniform } from "three/tsl"
+import { bloom } from "three/addons/tsl/display/BloomNode.js"
+import { temporary } from "./TemporaryNode"
 
-import { camera, renderer, scene, sizes } from "./Experience"
-
-import outlineVertexShader from "../../shaders/outline/vertex.glsl?raw"
-import outlineFragmentShader from "../../shaders/outline/fragment.glsl?raw"
+import { camera, renderer, scene } from "./Experience"
 
 export class PostProcessing {
   constructor() {
-    this.renderTarget = new THREE.WebGLRenderTarget(800, 600, { samples: 5 })
+    this.scenePass = pass(scene, camera.camera)
+    this.scenePass.setMRT(mrt({ output, emissive }))
 
-    this.effectComposer = new EffectComposer(
-      renderer.renderer,
-      this.renderTarget,
-    )
+    this.outputPass = this.scenePass.getTextureNode()
+    this.emissivePass = this.scenePass.getTextureNode("emissive")
 
-    this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    this.effectComposer.setSize(sizes.width, sizes.height)
+    this.bloomPass = bloom(this.emissivePass, 0.8, 1)
+    this.bloomedOutput = this.outputPass.add(this.bloomPass)
 
-    this.renderPass = new RenderPass(scene, camera.camera)
-    this.effectComposer.addPass(this.renderPass)
+    const temporaryPass = temporary(this.outputPass)
 
-    this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader)
-    this.effectComposer.addPass(this.gammaCorrectionPass)
-
-    this.outlineShader = {
-      vertexShader: outlineVertexShader,
-      fragmentShader: outlineFragmentShader,
-
-      uniforms: {
-        tDiffuse: { value: null },
-        uTintColor: { value: new THREE.Color("grey") },
-      },
-    }
-
-    this.outlinePass = new ShaderPass(this.outlineShader)
-    this.effectComposer.addPass(this.outlinePass)
-
-    //Not sure anymore what this does
-    //this.effectComposer.renderTarget1.texture.colorSpace = THREE.SRGBColorSpace
-    //this.effectComposer.renderTarget2.texture.colorSpace = THREE.SRGBColorSpace
-
-    window.addEventListener("resize", () => {
-      this.effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-      this.effectComposer.setSize(sizes.width, sizes.height)
-    })
+    this.postProcessing = new THREE.PostProcessing(renderer.renderer)
+    this.postProcessing.outputNode = temporaryPass
   }
 }
