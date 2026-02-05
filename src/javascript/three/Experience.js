@@ -1,7 +1,7 @@
 import { Inspector } from "three/addons/inspector/Inspector"
 import * as THREE from "three/webgpu"
 
-import { color, fract, mul, normalWorld, uv, vec3, vec4 } from "three/tsl"
+import { vec4 } from "three/tsl"
 
 import { Camera } from "./Camera"
 import { GUI } from "./GUI"
@@ -10,10 +10,6 @@ import { Model } from "./Model"
 import { PostProcessing } from "./PostProcessing"
 import { Renderer } from "./Renderer"
 import { Sizes } from "./Sizes"
-
-export const PARAMS = {
-  size: 1,
-}
 
 export const canvas = document.querySelector("canvas.webgl")
 
@@ -48,10 +44,8 @@ const tick = () => {
   const deltaTime = currentTime - time
   time = currentTime
 
-  // Update controls
   camera.controls.update()
 
-  // Render
   postProcessing.postProcessing.render()
 
   window.requestAnimationFrame(tick)

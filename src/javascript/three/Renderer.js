@@ -3,8 +3,6 @@ import { canvas, sizes } from "./Experience"
 
 export class Renderer {
   constructor() {
-    this.renderer
-
     this.setRenderer()
   }
 
