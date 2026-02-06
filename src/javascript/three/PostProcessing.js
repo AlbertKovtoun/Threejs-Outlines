@@ -1,17 +1,8 @@
 import * as THREE from "three/webgpu"
-
-import {
-  pass,
-  mrt,
-  output,
-  emissive,
-  depth,
-  normalView,
-  normalWorld,
-} from "three/tsl"
+import { pass, mrt, output, emissive, depth, normalWorld } from "three/tsl"
 import { bloom } from "three/addons/tsl/display/BloomNode.js"
+import { fxaa } from "three/addons/tsl/display/FXAANode.js"
 import { outline } from "./OutlineNode"
-
 import { camera, renderer, scene } from "./Experience"
 
 export class PostProcessing {
@@ -32,6 +23,8 @@ export class PostProcessing {
       this.depthPass,
       this.normalPass,
     )
+
+    const fxaaPass = fxaa(outlinePass)
 
     this.postProcessing = new THREE.PostProcessing(renderer.renderer)
     this.postProcessing.outputNode = outlinePass
