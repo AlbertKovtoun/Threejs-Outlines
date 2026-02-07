@@ -6,11 +6,21 @@ class OutlineNode extends TempNode {
     return "OutlineNode"
   }
 
-  constructor(textureNode, depthNode, normalNode) {
+  constructor(
+    textureNode,
+    depthNode,
+    normalNode,
+    thickness,
+    depthStrength,
+    normalStrength,
+  ) {
     super("vec4")
     this.textureNode = textureNode
     this.depthNode = depthNode
     this.normalNode = normalNode
+    this.thickness = thickness
+    this.depthStrength = depthStrength
+    this.normalStrength = normalStrength
   }
 
   setup() {
@@ -18,7 +28,9 @@ class OutlineNode extends TempNode {
     let normalBuffer = this.normalNode
     const depthBuffer = this.depthNode
     const uvNode = uv()
-    const thickness = 1
+    const thickness = this.thickness
+    const depthStrength = this.depthStrength
+    const normalStrength = this.normalStrength
 
     const screensize = vec2(1 / window.innerWidth, 1 / window.innerHeight).mul(
       thickness,
@@ -36,7 +48,7 @@ class OutlineNode extends TempNode {
       .mul(dxDepth)
       .add(dyDepth.mul(dyDepth))
       .sqrt()
-      .mul(20) // sqrt(dx² + dy²)
+      .mul(depthStrength) // sqrt(dx² + dy²)
 
     const leftNormal = normalBuffer.sample(uvNode.sub(vec2(screensize.x, 0)))
     const rightNormal = normalBuffer.sample(uvNode.add(vec2(screensize.x, 0)))
@@ -50,7 +62,7 @@ class OutlineNode extends TempNode {
       .dot(dxNormal)
       .add(dyNormal.dot(dyNormal))
       .sqrt()
-      .mul(2)
+      .mul(normalStrength)
 
     const outline = depthEdge.oneMinus().add(normalEdge.oneMinus()).clamp(0, 1)
 
@@ -62,6 +74,22 @@ class OutlineNode extends TempNode {
 
 export default OutlineNode
 
-export const outline = (outputColor, depth, normal) => {
-  return nodeObject(new OutlineNode(outputColor, depth, normal))
+export const outline = (
+  outputColor,
+  depth,
+  normal,
+  thickness,
+  depthStrength,
+  normalStrength,
+) => {
+  return nodeObject(
+    new OutlineNode(
+      outputColor,
+      depth,
+      normal,
+      thickness,
+      depthStrength,
+      normalStrength,
+    ),
+  )
 }
